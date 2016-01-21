@@ -1,0 +1,53 @@
+# Paso 1: Establecemos el espacio de trabajo
+  
+setwd("~/dev/workspaceR/Tarea8")
+
+# Paso 2: Definimos la funcion makeCacheMatrix para crear la matriz
+
+makeCacheMatrix <- function(x = numeric()) {
+  m <- NULL
+  set <- function(y) {
+    x <<- y
+    m <<- NULL
+  }
+  get <- function() x
+  setsolve <- function(solve) m <<- solve
+  getsolve <- function() m
+  list(set = set, get = get,
+       setsolve = setsolve,
+       getsolve = getsolve)
+}
+
+# Paso 3: Definimos la funcion cacheSolve para calcular la inversa del objeto matriz
+
+cacheSolve <- function(x, ...) {
+  m <- x$getsolve()
+  if(!is.null(m)) {
+    message("getting cached data")
+    return(m)
+  }
+  data <- x$get()
+  m <- solve(data, ...)
+  x$setsolve(m)
+  m
+}
+
+# Paso 4: Creamos la matriz dinamicamente y definimos n=1000 como valor inicial
+
+n=1000
+c=rbind(sample(1:9,n,replace=T))
+for (i in 2:n) c=rbind(c,sample(1:9,n,replace=T));
+
+# Paso 5: Tomamos el tiempo que tomaria resolver la matriz inversa sin el uso de la funcion cacheSolve
+
+print(system.time(solve(c)))
+
+# Paso 6: Llamamos la funcion makeCacheMatrix y se lo asignamos a z
+
+z<-makeCacheMatrix(c)
+
+# Paso 7: Ahora tomamos los tiempos usando la funcion cacheSolve haciendo dos llamadas a la funcion cacheSolve para apreciar el uso de cache
+
+print(system.time(cacheSolve(z)))
+print(system.time(cacheSolve(z)))
+
